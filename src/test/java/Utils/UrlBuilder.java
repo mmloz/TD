@@ -1,7 +1,11 @@
 package Utils;
 
+import TestData.SettingsKeeper;
+
 public class UrlBuilder {
+    private static final SettingsKeeper settings = new SettingsKeeper();
+
     public String getTokenUrl(){
-        return "http://localhost:8080/api/token/get";
+        return settings.getHomeUrl() + "/api/token/get";
     }
 }

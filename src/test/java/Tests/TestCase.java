@@ -1,44 +1,34 @@
 package Tests;
 
-import Utils.RequestUtils;
-import Utils.UrlBuilder;
+import Api.UnionApiRequests;
+import TestData.TestDataKeeper;
 import aquality.selenium.browser.AqualityServices;
 import aquality.selenium.browser.Browser;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class TestCase {
     private Browser browser;
-    private UrlBuilder urlBuilder;
+    private TestDataKeeper testData;
+    private UnionApiRequests unionApi;
 
     @BeforeTest
     public void setUp(){
         browser = AqualityServices.getBrowser();
-        urlBuilder = new UrlBuilder();
+
+        testData = new TestDataKeeper();
+        unionApi = new UnionApiRequests();
     }
 
     @Test
     public void testCase() {
-        //  Запросом к апи получить токен согласно номеру варианта
-        RequestUtils requestUtils = new RequestUtils();
+        // Запросом к апи получить токен согласно номеру варианта
+        String token = unionApi.getToken(testData.getVariant());
 
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("variant", "1"));
-
-        String token = null;
-        try {
-            token = requestUtils.postWithParams(urlBuilder.getTokenUrl(), params);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(token);
+        // Токен сгенерирован
+        Assert.assertNotNull(token);
+        Assert.assertEquals(token.length(), testData.getTokenSize());
     }
 }
