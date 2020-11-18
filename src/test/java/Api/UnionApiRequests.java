@@ -1,6 +1,7 @@
 package Api;
 
 import Api.Constants.UnionUrlParams;
+import Utils.JsonUtils;
 import Utils.RequestUtils;
 import Utils.UrlBuilder;
 import org.apache.http.NameValuePair;
@@ -26,5 +27,21 @@ public class UnionApiRequests {
         }
 
         return token;
+    }
+
+    public String getJsonTests(String projectId){
+        List<NameValuePair> getJsonParams = new ArrayList<>();
+        getJsonParams.add(new BasicNameValuePair(UnionUrlParams.PROJECT_ID, projectId));
+
+        String getTestsResponse = null;
+        do {
+            try {
+                getTestsResponse = requestUtils.postWithParams(urlBuilder.getTestsListJsonUrl(), getJsonParams);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } while (!JsonUtils.isJson(getTestsResponse));
+
+        return getTestsResponse;
     }
 }

@@ -1,4 +1,11 @@
 {
   "var" : "1",
-  "tokenSize" : "32"
+  "tokenSize" : "32",
+  "login" : "login",
+  "password" : "password",
+  "footerText" : "Version: %s",
+  "projectId" : "1",
+  "successMsg" : "Project %s saved",
+  "screenName" : "screen.png",
+  "imgName" : "testAttachment.png"
 }
