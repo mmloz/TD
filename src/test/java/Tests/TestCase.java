@@ -175,7 +175,5 @@ public class TestCase {
         String screenPath = String.format("%s//%s", browser.getDownloadDirectory(), testData.getScreenName());
         String attachmentPath = String.format("%s//%s", browser.getDownloadDirectory(), testData.getImageName());
         Assert.assertTrue(ImageUtils.compareImages(screenPath, attachmentPath));
-        
-
     }
 }

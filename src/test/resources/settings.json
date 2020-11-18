@@ -19,7 +19,7 @@
         "download.prompt_for_download": "false",
         "download.default_directory": "src//test//resources//downloads"
       },
-      "startArguments": []
+      "startArguments": ["--headless"]
     },
     "firefox": {
       "webDriverVersion": "latest",
