@@ -1,6 +1,8 @@
 package Utils;
 
-import Api.Constants.UnionJsonKeys;
+import Api.TestRail.Constants.RequestParams;
+import Api.UnionReporting.Constants.UnionJsonKeys;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,5 +38,27 @@ public class JsonUtils {
         }
 
         return tests;
+    }
+
+    public static String getId(String source){
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode object = null;
+        try {
+            object = mapper.readTree(source);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return object.get(RequestParams.id).toString();
+    }
+
+    public static String getId(String source, int pos){
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode object = null;
+        try {
+            object = mapper.readTree(source);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return object.get(pos).get(RequestParams.id).toString();
     }
 }

@@ -1,6 +1,6 @@
-package Api;
+package Api.UnionReporting;
 
-import Api.Constants.UnionUrlParams;
+import Api.UnionReporting.Constants.UnionUrlParams;
 import Utils.JsonUtils;
 import Utils.RequestUtils;
 import Utils.UrlBuilder;

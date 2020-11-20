@@ -1,4 +1,4 @@
-package Api.Constants;
+package Api.UnionReporting.Constants;
 
 public class UnionUrlParams {
     public static final String VARIANT = "variant";

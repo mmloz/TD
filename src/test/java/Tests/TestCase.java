@@ -1,10 +1,13 @@
 package Tests;
 
-import Api.Constants.UnionUrlParams;
-import Api.UnionApiRequests;
+import Api.TestRail.TestRailRequests;
+import Api.TestRail.TestRailUtils;
+import Api.UnionReporting.Constants.UnionUrlParams;
+import Api.UnionReporting.UnionApiRequests;
 import Forms.OneProjectPage;
 import Forms.ProjectsPage;
 import Forms.TestPage;
+import TestData.SettingsKeeper;
 import TestData.TestDataKeeper;
 import Utils.*;
 import aquality.selenium.browser.AqualityServices;
@@ -28,6 +31,7 @@ import java.util.List;
 public class TestCase {
     private Browser browser;
     private TestDataKeeper testData;
+    private SettingsKeeper settings;
     private UnionApiRequests unionApi;
     private UrlBuilder urlBuilder;
 
@@ -36,6 +40,7 @@ public class TestCase {
         browser = AqualityServices.getBrowser();
 
         testData = new TestDataKeeper();
+        settings = new SettingsKeeper();
         unionApi = new UnionApiRequests();
         urlBuilder = new UrlBuilder();
     }
@@ -175,5 +180,36 @@ public class TestCase {
         String screenPath = String.format("%s//%s", browser.getDownloadDirectory(), testData.getScreenName());
         String attachmentPath = String.format("%s//%s", browser.getDownloadDirectory(), testData.getImageName());
         Assert.assertTrue(ImageUtils.compareImages(screenPath, attachmentPath));
+
+
+        //////////////////////////////////////////////////////////
+        // TestRail
+
+        String testRailUrl = testData.getTRUrl();
+        String testRailLogin = testData.getTRLogin();
+        String testRailPassword = testData.getTRPassword();
+        TestRailRequests testRailRequests = new TestRailRequests(testRailUrl, testRailLogin, testRailPassword);
+
+        // получаем айди сьюита
+        String getSuiteResponse = testRailRequests.getSuites(testData.getTRProject());
+        String suiteId = JsonUtils.getId(getSuiteResponse, 0);
+
+        // создаем ран
+        String runParams = TestRailUtils.createRun(testData.getTRRunName(), suiteId, testData.getTRCaseId());
+        String postRunResponse = testRailRequests.postRun(testData.getTRProject(), runParams);
+        String runId = JsonUtils.getId(postRunResponse);
+
+        // получаем айди теста в ране
+        String getTestIdResponse = testRailRequests.getTestIdInRun(runId);
+        String trTestId = JsonUtils.getId(getTestIdResponse, 0);
+
+        // выставляем результаты теста
+        String testResultParams = TestRailUtils.createTestResult(testData.getTRCaseStatus());
+        String addResultResponse = testRailRequests.addResults(trTestId, testResultParams);
+        String resultId = JsonUtils.getId(addResultResponse);
+
+        // добавляем скрин
+        testRailRequests.addScreenToResult(resultId, screenPath);
+
     }
 }

@@ -40,8 +40,28 @@ public class TestDataKeeper {
     public String getSuccessMsg(){
         return testData.getValue(successMsgKey).toString();
     }
+
     public String getImageName(){ return testData.getValue(imgNameKey).toString(); }
+
     public String getScreenName(){ return testData.getValue(screenNameKey).toString(); }
+
+    /**
+     * TR = Test Rail
+     */
+
+    public String getTRUrl(){ return testData.getValue(trUrlKey).toString(); }
+
+    public String getTRLogin(){ return testData.getValue(trLoginKey).toString(); }
+
+    public String getTRPassword(){ return testData.getValue(trPasswordKey).toString(); }
+
+    public String getTRProject(){ return testData.getValue(trProjectIdKey).toString(); }
+
+    public String getTRCaseId(){ return testData.getValue(trCaseIdKey).toString(); }
+
+    public String getTRRunName(){ return testData.getValue(trRunNameKey).toString(); }
+
+    public String getTRCaseStatus(){ return testData.getValue(trCaseStatusKey).toString(); }
 
 
 }

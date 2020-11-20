@@ -15,6 +15,14 @@ public class JsonKeys {
     // settings keys
     public static final String urlKey = "/url";
 
+    // test rail keys
+    public static final String trUrlKey = "/testRailUrl";
+    public static final String trLoginKey = "/testRailLogin";
+    public static final String trPasswordKey = "/testRailPassword";
+    public static final String trProjectIdKey = "/testRailProject";
+    public static final String trCaseIdKey = "/testRailCaseId";
+    public static final String trRunNameKey = "/testRunName";
+    public static final String trCaseStatusKey = "/testCaseStatus";
 
     private JsonKeys(){}
 }

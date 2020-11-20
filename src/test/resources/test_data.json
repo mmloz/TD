@@ -7,5 +7,13 @@
   "projectId" : "1",
   "successMsg" : "Project %s saved",
   "screenName" : "screen.png",
-  "imgName" : "testAttachment.png"
+  "imgName" : "testAttachment.png",
+
+  "testRailUrl": "https://tr.a1qa.com/index.php?/api/v2",
+  "testRailLogin": "m.lozinskaya",
+  "testRailPassword": "Accidentally13_",
+  "testRailProject" : "108",
+  "testRailCaseId" : "11345480",
+  "testRunName" : "TD Lozinskaya",
+  "testCaseStatus" : "1"
 }
