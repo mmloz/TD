@@ -41,7 +41,7 @@
         "browser.download.manager.useWindow": false,
         "browser.download.panel.shown": false
       },
-      "startArguments": ["-headless", "--disable-gpu"]
+      "startArguments": ["--start-maximized"]
     },
     "iexplorer": {
       "webDriverVersion": "latest",
