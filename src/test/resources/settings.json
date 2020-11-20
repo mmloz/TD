@@ -1,5 +1,5 @@
 {
-  "browserName" : "chrome",
+  "browserName" : "firefox",
   "isRemote": false,
   "remoteConnectionUrl": "http://localhost:4444/wd/hub",
   "isElementHighlightEnabled" : true,
@@ -41,7 +41,7 @@
         "browser.download.manager.useWindow": false,
         "browser.download.panel.shown": false
       },
-      "startArguments": ["-headless"]
+      "startArguments": ["headless"]
     },
     "iexplorer": {
       "webDriverVersion": "latest",

@@ -14,6 +14,10 @@ import aquality.selenium.browser.AqualityServices;
 import aquality.selenium.browser.Browser;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxBinary;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -37,7 +41,7 @@ public class TestCase {
 
     @BeforeTest
     public void setUp(){
-        browser = AqualityServices.getBrowser();
+        //browser = AqualityServices.getBrowser();
 
         testData = new TestDataKeeper();
         settings = new SettingsKeeper();
@@ -211,5 +215,17 @@ public class TestCase {
         // добавляем скрин
         testRailRequests.addScreenToResult(resultId, screenPath);
 
+    }
+
+    @Test
+    public void checkBrowser(){
+        System.setProperty("webdriver.gecko.driver", "src/test/resources/downloads/geckodriver");
+
+        FirefoxBinary firefoxBinary = new FirefoxBinary();
+        FirefoxOptions options = new FirefoxOptions();
+        options.setBinary(firefoxBinary);
+        options.setHeadless(true);  // <-- headless set here
+        WebDriver driver = new FirefoxDriver(options);
+        driver.get("https://www.google.com");
     }
 }
