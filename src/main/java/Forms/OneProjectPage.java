@@ -10,20 +10,35 @@ public class OneProjectPage extends FormWithFactory {
     private static final By locator = By.xpath("//div[@class='panel-heading']");
     private static final String name = "Project page";
 
-    private static final String testTablePath = "//table[@class='table']//tr";
-    private static final String columnDataPath = testTablePath + "/td[%s]";
-    private static final String columnDataName = "Column: ";
+    private static final String columnsPath = "//table[@class='table']//tr//th";
+    private static final String columnPath = "//table[@class='table']//tr/td[%s]";
+
+    private static final String columnsName = "Columns in test table";
+    private static final String columnName = "Column: ";
 
     private static final String testByNamePath = ("//a[contains(text(), '%s')]");
     private static final String testByNameTitle = "Test name";
+
+    private static final String testIdUrlParameter = "testId=";
 
     public OneProjectPage() {
         super(locator, name);
     }
 
-    private List<String> getTestColumn(String column){
-        String columnPathTemplate = String.format(columnDataPath, column);
-        List<ITextBox> elements = elementFactory.findElements(By.xpath(columnPathTemplate), columnDataName + column, ITextBox.class);
+    private int getColumnNum(String name){
+        List<ITextBox> elements = elementFactory.findElements(By.xpath(columnsPath), columnsName, ITextBox.class);
+        for (int i = 0; i < elements.size(); i++){
+            if (elements.get(i).getText().contains(name)) return i + 1;
+        }
+
+        throw new IllegalArgumentException("No such column found");
+    }
+
+    public List<String> getColumnText(String columnName){
+        int column = getColumnNum(columnName);
+
+        String columnPathTemplate = String.format(columnPath, column);
+        List<ITextBox> elements = elementFactory.findElements(By.xpath(columnPathTemplate), OneProjectPage.columnName + columnName, ITextBox.class);
         List<String> data = new ArrayList<>();
 
         for (ITextBox current : elements){
@@ -31,14 +46,6 @@ public class OneProjectPage extends FormWithFactory {
         }
 
         return data;
-    }
-
-    public List<String> getTestNames(){
-        return getTestColumn("1");
-    }
-
-    public List<String> getTestDates(){
-        return getTestColumn("4");
     }
 
     public ITextBox getTest(String name){
@@ -49,6 +56,6 @@ public class OneProjectPage extends FormWithFactory {
 
     public int getTestId(String testName){
         ITextBox test = getTest(testName);
-        return Integer.parseInt(test.getAttribute("href").split("testId=")[1]);
+        return Integer.parseInt(test.getAttribute("href").split(testIdUrlParameter)[1]);
     }
 }

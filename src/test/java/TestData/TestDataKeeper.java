@@ -21,12 +21,8 @@ public class TestDataKeeper {
         return Integer.parseInt(testData.getValue(tokenSizeKey).toString());
     }
 
-    public String getLogin(){
-        return testData.getValue(loginKey).toString();
-    }
-
-    public String getPassword(){
-        return testData.getValue(passwordKey).toString();
+    public int getStringLength(){
+        return Integer.parseInt(testData.getValue(stringLengthKey).toString());
     }
 
     public String getFooterText(){
@@ -37,9 +33,33 @@ public class TestDataKeeper {
         return testData.getValue(projectIdKey).toString();
     }
 
+    public String getProjectName(){
+        return testData.getValue(projectNameKey).toString();
+    }
+
+    public String getTestNameColumnName(){
+        return testData.getValue(testNameColumnNameKey).toString();
+    }
+
+    public String getTestDateColumnName(){
+        return testData.getValue(testDateColumnNameKey).toString();
+    }
+
     public String getSuccessMsg(){
         return testData.getValue(successMsgKey).toString();
     }
+
+    public int getStatusId(){
+        return Integer.parseInt(testData.getValue(statusIdKey).toString());
+    }
+
+    public int getSessionId(){
+        return Integer.parseInt(testData.getValue(sessionIdKey).toString());
+    }
+
+    public String getAttachmentType(){ return testData.getValue(attachmentTypeKey).toString(); }
+
+    public String getScreenFormat(){ return testData.getValue(screenFormatKey).toString(); }
 
     public String getImageName(){ return testData.getValue(imgNameKey).toString(); }
 
@@ -50,10 +70,6 @@ public class TestDataKeeper {
      */
 
     public String getTRUrl(){ return testData.getValue(trUrlKey).toString(); }
-
-    public String getTRLogin(){ return testData.getValue(trLoginKey).toString(); }
-
-    public String getTRPassword(){ return testData.getValue(trPasswordKey).toString(); }
 
     public String getTRProject(){ return testData.getValue(trProjectIdKey).toString(); }
 

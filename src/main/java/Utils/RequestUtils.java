@@ -1,6 +1,6 @@
 package Utils;
 
-import Constants.ResValues;
+import Models.Response;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -18,14 +18,20 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RequestUtils {
-    private final String defCharset = "UTF-8";
+    private String defCharset = "UTF-8";
+    private String contentType = "application/json";
 
-    public String postWithParams(String url, List<NameValuePair> params) throws IOException
+    public RequestUtils(){}
+
+    public RequestUtils(String defCharset, String contentType) {
+        this.defCharset = defCharset;
+        this.contentType = contentType;
+    }
+
+    public String sendPostRequest(String url, List<NameValuePair> params) throws IOException
     {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost post = new HttpPost(url);
@@ -46,34 +52,32 @@ public class RequestUtils {
         return body;
     }
 
-    public static Map<ResValues, String> sendPostRequest(String website, String values, String username, String password) {
+    public Response sendPostRequest(String url, String params, String username, String password) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(website))
-                .header("Content-Type", "application/json")
+                .uri(URI.create(url))
+                .header("Content-Type", contentType)
                 .header("Authorization", basicAuth(username, password))
-                .header("Accept","application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(values))
+                .header("Accept", contentType)
+                .POST(HttpRequest.BodyPublishers.ofString(params))
                 .build();
 
         HttpResponse<String> response = null;
         try {
             response = client.send(request,
                     HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        return getResponseMap(response);
+        return getResponse(response);
     }
 
-    public static Map<ResValues, String> sendGetRequest(String website, String username, String password) {
+    public Response sendGetRequest(String website, String username, String password) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(website))
-                .header("Content-Type", "application/json")
+                .header("Content-Type", contentType)
                 .header("Authorization", basicAuth(username, password))
                 .build();
 
@@ -86,10 +90,10 @@ public class RequestUtils {
             e.printStackTrace();
         }
 
-        return getResponseMap(response);
+        return getResponse(response);
     }
 
-    public static String sendMultipart(String website, String filePath, String username, String password) {
+    public String sendMultipart(String website, String filePath, String username, String password) {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpPost uploadFile = new HttpPost(website);
         String authentication = basicAuth(username, password);
@@ -99,7 +103,6 @@ public class RequestUtils {
         uploadFile.addHeader("Attachment", f.getName());
         MultipartEntityBuilder builder = MultipartEntityBuilder.create()
                 .addBinaryBody("attachment", f);
-        //uploadFile.setEntity(builder.build());
 
         HttpEntity multipart = builder.build();
         uploadFile.setEntity(multipart);
@@ -112,22 +115,21 @@ public class RequestUtils {
         HttpEntity responseEntity = response.getEntity();
 
         try {
-            return EntityUtils.toString(responseEntity, "UTF-8");
+            return EntityUtils.toString(responseEntity, defCharset);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private static Map<ResValues, String> getResponseMap(HttpResponse<String> response){
-        Map<ResValues, String> result = new HashMap<>();
-        result.put(ResValues.CODE, String.valueOf(response.statusCode()));
-        result.put(ResValues.BODY, response.body());
-
-        return result;
+    private Response getResponse(HttpResponse<String> response){
+        return Response.builder()
+                .code(String.valueOf(response.statusCode()))
+                .body(response.body())
+                .build();
     }
 
-    private static String basicAuth(String username, String password) {
+    private String basicAuth(String username, String password) {
         return "Basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
     }
 }

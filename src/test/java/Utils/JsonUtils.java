@@ -1,8 +1,7 @@
 package Utils;
 
 import Api.TestRail.Constants.RequestParams;
-import Api.UnionReporting.Constants.UnionJsonKeys;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import Api.UnionReporting.Constants.UnionUrlParams;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +33,7 @@ public class JsonUtils {
         List<String> tests = new ArrayList<>();
 
         for (int i = 0; i < arrayOfTests.size(); i++){
-            tests.add(arrayOfTests.get(i).get(UnionJsonKeys.NAME).asText());
+            tests.add(arrayOfTests.get(i).get(UnionUrlParams.NAME).asText());
         }
 
         return tests;

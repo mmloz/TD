@@ -3,10 +3,11 @@ package Forms;
 import aquality.selenium.browser.AqualityServices;
 import aquality.selenium.elements.interfaces.IButton;
 import aquality.selenium.elements.interfaces.ITextBox;
+import aquality.selenium.forms.Form;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 
-public class ModalForm extends FormWithFactory{
+public class ModalForm extends FormWithFactory {
     private static final By locator = By.xpath("//div[@class='modal-dialog']");
     private static final String name = "Modal dialog";
 

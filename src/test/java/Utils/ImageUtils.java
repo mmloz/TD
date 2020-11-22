@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ImageUtils {
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+
     public static String bytesToHex(byte[] bytes) {
         byte[] hexChars = new byte[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
@@ -20,7 +21,7 @@ public class ImageUtils {
         return new String(hexChars, StandardCharsets.UTF_8);
     }
 
-    public static void saveScreenshot(byte[] screen, String dir, String name){
+    public static void saveScreenshot(byte[] screen, String dir, String name, String formatName){
         FileUtils.createNewDir(dir);
 
         ByteArrayInputStream bis = new ByteArrayInputStream(screen);
@@ -31,7 +32,7 @@ public class ImageUtils {
             e.printStackTrace();
         }
         try {
-            ImageIO.write(bImage2, "png", new File(dir + "//" + name));
+            ImageIO.write(bImage2, formatName, new File(FileUtils.getPath(dir, name)));
         } catch (IOException e) {
             e.printStackTrace();
         }

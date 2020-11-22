@@ -4,21 +4,25 @@ import Api.TestRail.TestRailRequests;
 import Api.TestRail.TestRailUtils;
 import Api.UnionReporting.Constants.UnionUrlParams;
 import Api.UnionReporting.UnionApiRequests;
+import Api.UnionReporting.UrlBuilder;
+import Constants.AssertMessages;
 import Forms.OneProjectPage;
 import Forms.ProjectsPage;
 import Forms.TestPage;
+import TestData.AuthKeeper;
 import TestData.SettingsKeeper;
 import TestData.TestDataKeeper;
-import Utils.*;
+import Utils.DataBaseUtils.DBConnector;
+import Utils.DateUtils;
+import Utils.FileUtils;
+import Utils.ImageUtils;
+import Utils.JsonUtils;
 import aquality.selenium.browser.AqualityServices;
 import aquality.selenium.browser.Browser;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxBinary;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -26,50 +30,45 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
-/*
-    TODO
-        * ожидания
-        * сообщения в ассертах
- */
-
 public class TestCase {
     private Browser browser;
     private TestDataKeeper testData;
     private SettingsKeeper settings;
     private UnionApiRequests unionApi;
     private UrlBuilder urlBuilder;
+    private AuthKeeper auth;
 
     @BeforeTest
     public void setUp(){
-        //browser = AqualityServices.getBrowser();
+        browser = AqualityServices.getBrowser();
 
         testData = new TestDataKeeper();
         settings = new SettingsKeeper();
+
         unionApi = new UnionApiRequests();
         urlBuilder = new UrlBuilder();
+
+        auth = new AuthKeeper();
     }
 
+
     @Test
-    public void testCase() {
+    public void unionReportingTest() {
         // Запросом к апи получить токен согласно номеру варианта
         String token = unionApi.getToken(testData.getVariant());
 
         // Токен сгенерирован
-        Assert.assertNotNull(token);
-        Assert.assertEquals(token.length(), testData.getTokenSize());
+        Assert.assertNotNull(token, AssertMessages.nullToken);
+        Assert.assertEquals(token.length(), testData.getTokenSize(), AssertMessages.invalidTokenSize);
 
         // Перейти на сайт. Пройти необходимую авторизацию.
-        String authUrl = urlBuilder.getAuthUrl(testData.getLogin(), testData.getPassword());
+        String authUrl = urlBuilder.getAuthUrl(auth.getUnionLogin(), auth.getUnionPassword());
         browser.goTo(authUrl);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        browser.waitForPageToLoad();
 
         // проверка что открылась страница
         ProjectsPage projectsPage = new ProjectsPage();
-        Assert.assertTrue(projectsPage.home.state().isDisplayed());
+        Assert.assertTrue(projectsPage.home.state().isDisplayed(), AssertMessages.projectsPageError);
 
         // С помощью cookie передать сгенерированный на шаге 1 токен (параметр token)
         Cookie cookie = new Cookie(UnionUrlParams.TOKEN, token);
@@ -81,122 +80,117 @@ public class TestCase {
 
         // Открылась страница проектов. После обновления страницы, в футере указан верный номер варианта
         Assert.assertTrue(projectsPage.getFooterText()
-                .contains(String.format(testData.getFooterText(), testData.getVariant())));
+                .contains(String.format(testData.getFooterText(), testData.getVariant())),
+                AssertMessages.footerTextError);
 
         // Перейти на страницу проекта Nexage
         OneProjectPage nexagePage = new OneProjectPage();
-        projectsPage.clickProject(testData.getProjectId());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        projectsPage.clickOnProject(testData.getProjectName());
+        browser.waitForPageToLoad();
 
         // Запросом к апи получить список тестов в JSON-формате
         List<String> namesFromApi = JsonUtils.getTestName(unionApi.getJsonTests(testData.getProjectId()));
 
         // Тесты, находящиеся на первой странице отсортированы по убыванию даты
-        List<String> testDates = nexagePage.getTestDates();
-        Assert.assertTrue(DateUtils.isDateSortedByDesc(testDates));
+        List<String> testDates = nexagePage.getColumnText(testData.getTestDateColumnName());
+        Assert.assertTrue(DateUtils.isDateSortedByDesc(testDates), AssertMessages.testOrderError);
 
         // и соответствуют тем, которые вернул запрос к апи
-        List<String> namesFromUI = nexagePage.getTestNames();
-        Assert.assertTrue(namesFromApi.containsAll(namesFromUI));
+        List<String> namesFromUI = nexagePage.getColumnText(testData.getTestNameColumnName());
+        Assert.assertTrue(namesFromApi.containsAll(namesFromUI), AssertMessages.uiAndApiComparisonError);
 
-        // Вернуться на предыдущую страницу в браузере(страница проектов).
+        // Вернуться на предыдущую страницу в браузере(страница проектов)
         browser.goBack();
         browser.getDriver().manage().deleteAllCookies();
         browser.refresh();
         browser.waitForPageToLoad();
 
-        // Нажать на +Add. Ввести название проекта, и сохранить.
-        String projName = RandomStringUtils.randomAlphanumeric(10);
+        // Нажать на +Add. Ввести название проекта, и сохранить
+        String projName = RandomStringUtils.randomAlphanumeric(testData.getStringLength());
         String reqMsg = String.format(testData.getSuccessMsg(), projName);
 
         projectsPage.clickAdd();
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         projectsPage.modalForm.enterText(projName);
         projectsPage.modalForm.save();
 
-        // После сохранения проекта появилось сообщение об успешном сохранении.
+        // После сохранения проекта появилось сообщение об успешном сохранении
         String message = projectsPage.modalForm.getMessage();
-        Assert.assertEquals(message, reqMsg);
+        Assert.assertEquals(message, reqMsg, AssertMessages.addProjectTextError);
 
-        // Для закрытия окна добавления проекта вызвать js-метод closePopUp().
+        // Для закрытия окна добавления проекта вызвать js-метод closePopUp()
         projectsPage.modalForm.close();
-        // После вызова метода окно добавления проекта закрылось.
+
+        // После вызова метода окно добавления проекта закрылось
+        projectsPage.modalForm.state().waitForNotDisplayed();
+        Assert.assertFalse(projectsPage.modalForm.state().isDisplayed(), AssertMessages.modalFormCloseError);
 
         // Обновить страницу
         browser.refresh();
         browser.waitForPageToLoad();
 
         // После обновления страницы проект появился в списке
-        Assert.assertTrue(projectsPage.isProjectExists(projName));
+        Assert.assertTrue(projectsPage.isProjectExists(projName), AssertMessages.projectCreationError);
 
-        // Перейти на страницу созданного проекта. Добавить тест через БД(вместе с логом и скриншотом текущей страницы).
+        // Перейти на страницу созданного проекта. Добавить тест через БД(вместе с логом и скриншотом текущей страницы)
         int projectId = projectsPage.getProjId(projName);
-        projectsPage.clickOnProject(projectId);
+        projectsPage.clickOnProject(projName);
 
         OneProjectPage testProjPage = new OneProjectPage();
 
         // Добавить тест через БД
-        String testName = "Test name new";
-        int statusId = 1;
-        String methodName = "Method name";
-        int sessionId = 1;
-        String environment = "Environment";
+        String testName = RandomStringUtils.randomAlphanumeric(testData.getStringLength());
+        int statusId = testData.getStatusId();
+        String methodName = RandomStringUtils.randomAlphanumeric(testData.getStringLength());
+        int sessionId = testData.getSessionId();
+        String environment = RandomStringUtils.randomAlphanumeric(testData.getStringLength());
         String browserName = browser.getBrowserName().toString();
 
         DBConnector db = new DBConnector();
         db.insertTest(testName, statusId, methodName, projectId, sessionId, environment, browserName);
 
         // Тест отобразился без обновления страницы
-        Assert.assertTrue(testProjPage.getTest(testName).state().waitForDisplayed());
+        Assert.assertTrue(testProjPage.getTest(testName).state().waitForDisplayed(), AssertMessages.testCreationError);
 
         // Добавить лог и скриншот
         int testId = testProjPage.getTestId(testName);
         byte[] screen = AqualityServices.getBrowser().getScreenshot();
-        ImageUtils.saveScreenshot(screen, browser.getDownloadDirectory(), testData.getScreenName());
-        String logText = "Example log";
+        ImageUtils.saveScreenshot(screen, browser.getDownloadDirectory(), testData.getScreenName(), testData.getScreenFormat());
+        String logText = RandomStringUtils.randomAlphanumeric(testData.getStringLength());;
 
-        db.insertLogInTest(logText, 0, testId);
-        db.insertScreenInTest(ImageUtils.bytesToHex(screen), testId);
+        db.insertLogInTest(logText, testId);
+        db.insertScreenInTest(ImageUtils.bytesToHex(screen), testData.getAttachmentType(), testId);
 
-        // Перейти на страницу созданного теста. Проверить корректность информации.
+        // Перейти на страницу созданного теста. Проверить корректность информации
         testProjPage.getTest(testName).click();
         TestPage test = new TestPage();
 
         // Все поля имеют верное значение
-        Assert.assertEquals(logText, test.getLogsText());
-        Assert.assertTrue(test.getAttachmentType().contains("image/png"));
-        Assert.assertNotNull(test.getImageSrc());
+        Assert.assertEquals(logText, test.getLogsText(), AssertMessages.logTextError);
+        Assert.assertTrue(test.getAttachmentType().contains(testData.getAttachmentType()), AssertMessages.attachmentTypeError);
+        Assert.assertNotNull(test.getImageSrc(), AssertMessages.nullAttachmentSrc);
 
         // Скриншот соответствует отправленному
         byte[] decodedImg = Base64.getDecoder()
                 .decode(test.getImageSrc().getBytes(StandardCharsets.UTF_8));
         FileUtils.writeByteToImage(browser.getDownloadDirectory(), testData.getImageName(), decodedImg);
 
-        String screenPath = String.format("%s//%s", browser.getDownloadDirectory(), testData.getScreenName());
-        String attachmentPath = String.format("%s//%s", browser.getDownloadDirectory(), testData.getImageName());
-        Assert.assertTrue(ImageUtils.compareImages(screenPath, attachmentPath));
+        String screenPath = FileUtils.getPath(browser.getDownloadDirectory(), testData.getScreenName());
+        String attachmentPath = FileUtils.getPath(browser.getDownloadDirectory(), testData.getImageName());
+        Assert.assertTrue(ImageUtils.compareImages(screenPath, attachmentPath), AssertMessages.attachmentNotTheSameError);
+    }
 
-
-        //////////////////////////////////////////////////////////
-        // TestRail
-
+    @AfterTest
+    public void tearDown(){
         String testRailUrl = testData.getTRUrl();
-        String testRailLogin = testData.getTRLogin();
-        String testRailPassword = testData.getTRPassword();
+        String testRailLogin = auth.getTrLogin();
+        String testRailPassword = auth.getTrPassword();
         TestRailRequests testRailRequests = new TestRailRequests(testRailUrl, testRailLogin, testRailPassword);
 
         // получаем айди сьюита
+        int firstFoundPos = 0;
         String getSuiteResponse = testRailRequests.getSuites(testData.getTRProject());
-        String suiteId = JsonUtils.getId(getSuiteResponse, 0);
+        String suiteId = JsonUtils.getId(getSuiteResponse, firstFoundPos);
 
         // создаем ран
         String runParams = TestRailUtils.createRun(testData.getTRRunName(), suiteId, testData.getTRCaseId());
@@ -205,7 +199,7 @@ public class TestCase {
 
         // получаем айди теста в ране
         String getTestIdResponse = testRailRequests.getTestIdInRun(runId);
-        String trTestId = JsonUtils.getId(getTestIdResponse, 0);
+        String trTestId = JsonUtils.getId(getTestIdResponse, firstFoundPos);
 
         // выставляем результаты теста
         String testResultParams = TestRailUtils.createTestResult(testData.getTRCaseStatus());
@@ -213,19 +207,6 @@ public class TestCase {
         String resultId = JsonUtils.getId(addResultResponse);
 
         // добавляем скрин
-        testRailRequests.addScreenToResult(resultId, screenPath);
-
-    }
-
-    @Test
-    public void checkBrowser(){
-        System.setProperty("webdriver.gecko.driver", "src/test/resources/downloads/geckodriver");
-
-        FirefoxBinary firefoxBinary = new FirefoxBinary();
-        FirefoxOptions options = new FirefoxOptions();
-        options.setBinary(firefoxBinary);
-        options.setHeadless(true);  // <-- headless set here
-        WebDriver driver = new FirefoxDriver(options);
-        driver.get("https://www.google.com");
+        testRailRequests.addScreenToResult(resultId, FileUtils.getPath(browser.getDownloadDirectory(), testData.getScreenName()));
     }
 }

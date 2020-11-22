@@ -1,7 +1,6 @@
 package Api.TestRail.Constants;
 
 public class RequestParams {
-    // TestRail
     public static final String id = "id";
     public static final String name = "name";
     public static final String suiteId = "suite_id";

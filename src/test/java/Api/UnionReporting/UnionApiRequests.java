@@ -3,7 +3,6 @@ package Api.UnionReporting;
 import Api.UnionReporting.Constants.UnionUrlParams;
 import Utils.JsonUtils;
 import Utils.RequestUtils;
-import Utils.UrlBuilder;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -21,7 +20,7 @@ public class UnionApiRequests {
 
         String token = null;
         try {
-            token = requestUtils.postWithParams(urlBuilder.getTokenUrl(), params);
+            token = requestUtils.sendPostRequest(urlBuilder.getTokenUrl(), params);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -36,7 +35,7 @@ public class UnionApiRequests {
         String getTestsResponse = null;
         do {
             try {
-                getTestsResponse = requestUtils.postWithParams(urlBuilder.getTestsListJsonUrl(), getJsonParams);
+                getTestsResponse = requestUtils.sendPostRequest(urlBuilder.getTestsListJsonUrl(), getJsonParams);
             } catch (IOException e) {
                 e.printStackTrace();
             }

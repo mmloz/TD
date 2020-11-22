@@ -32,6 +32,5 @@ public class TestRailUtils {
             e.printStackTrace();
             return null;
         }
-
     }
 }

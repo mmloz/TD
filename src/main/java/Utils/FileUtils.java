@@ -1,17 +1,11 @@
 package Utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileUtils {
-    public static boolean isFileExists(String fileName){
-        File file = new File(fileName);
-        return file.exists();
-    }
-
     public static void createNewDir(String dirName){
         Path path = Paths.get(dirName);
         if(!Files.exists(path)) {
@@ -31,5 +25,9 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getPath(String dir, String name){
+        return String.format("%s//%s", dir, name);
     }
 }

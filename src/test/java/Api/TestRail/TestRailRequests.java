@@ -1,60 +1,62 @@
 package Api.TestRail;
 
 import Api.TestRail.Constants.ApiUrl;
-import Constants.ResValues;
+import Models.Response;
 import Utils.RequestUtils;
 
-import java.util.Map;
-
 public class TestRailRequests {
+    private final RequestUtils requestUtils;
     private final String testRailUrl;
     private final String testRailLogin;
     private final String testRailPassword;
+
+    private final String urlTemplate = "%s%s%s";
 
     public TestRailRequests(String testRailUrl, String testRailLogin, String testRailPassword) {
         this.testRailUrl = testRailUrl;
         this.testRailLogin = testRailLogin;
         this.testRailPassword = testRailPassword;
+        this.requestUtils = new RequestUtils();
     }
 
     public String getSuites(String projectId){
-        Map<ResValues, String> getSuiteResponse = RequestUtils.sendGetRequest(
-                String.format("%s%s%s", testRailUrl, ApiUrl.getSuites, projectId),
+        Response getSuiteResponse = requestUtils.sendGetRequest(
+                String.format(urlTemplate, testRailUrl, ApiUrl.getSuites, projectId),
                 testRailLogin, testRailPassword);
 
-        return getSuiteResponse.get(ResValues.BODY);
+        return getSuiteResponse.getBody();
     }
 
     public String postRun(String projectId, String runParams){
-        Map<ResValues, String> postRunResponse = RequestUtils.sendPostRequest(
-                String.format("%s%s%s", testRailUrl, ApiUrl.addRun, projectId),
+        Response postRunResponse = requestUtils.sendPostRequest(
+                String.format(urlTemplate, testRailUrl, ApiUrl.addRun, projectId),
                 runParams,
                 testRailLogin, testRailPassword);
 
 
-        return postRunResponse.get(ResValues.BODY);
+        return postRunResponse.getBody();
     }
 
     public String getTestIdInRun(String runId){
-        Map<ResValues, String> getTestIdResponse = RequestUtils.sendGetRequest(
-                String.format("%s%s%s", testRailUrl, ApiUrl.getTests, runId),
+        Response getTestIdResponse = requestUtils.sendGetRequest(
+                String.format(urlTemplate, testRailUrl, ApiUrl.getTests, runId),
                 testRailLogin, testRailPassword);
 
-        return getTestIdResponse.get(ResValues.BODY);
+        return getTestIdResponse.getBody();
     }
 
     public String addResults(String trTestId, String testResultParams){
-        Map<ResValues, String> addResultResponse = RequestUtils.sendPostRequest(
-                String.format("%s%s%s", testRailUrl, ApiUrl.addResult, trTestId),
+        Response addResultResponse = requestUtils.sendPostRequest(
+                String.format(urlTemplate, testRailUrl, ApiUrl.addResult, trTestId),
                 testResultParams,
                 testRailLogin, testRailPassword);
 
-        return addResultResponse.get(ResValues.BODY);
+        return addResultResponse.getBody();
     }
 
     public void addScreenToResult(String resultId, String screenPath){
-        RequestUtils.sendMultipart(
-                String.format("%s%s%s", testRailUrl, ApiUrl.addAttachmentToResult, resultId),
+        requestUtils.sendMultipart(
+                String.format(urlTemplate, testRailUrl, ApiUrl.addAttachmentToResult, resultId),
                 screenPath,
                 testRailLogin, testRailPassword);
     }

@@ -8,7 +8,7 @@ public class TestPage extends FormWithFactory{
     private static final String name = "Test page";
 
     private static final By logsTextPath = By.xpath("//div[text()='Logs']/following-sibling::table[1]");
-    private static final String logsTextName = "Log filed";
+    private static final String logsTextName = "Log field";
 
     private static final By attachmentPath = By.xpath("//div[text()='Attachments']/following-sibling::table[1]");
     private static final String attachmentName = "Attachment";
@@ -29,11 +29,6 @@ public class TestPage extends FormWithFactory{
     public String getImageSrc(){
         ITextBox attachments = elementFactory.getTextBox(imagePath, imageName);
         return attachments.getAttribute("src").split(",")[1];
-    }
-
-    public boolean isImageNotNull(){
-        ITextBox attachments = elementFactory.getTextBox(imagePath, imageName);
-        return attachments.getAttribute("href") != null;
     }
 
     public String getAttachmentType(){

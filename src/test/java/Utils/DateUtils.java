@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 public class DateUtils {
+    private static final String dateFormat = "yyyy-MM-dd HH:mm:ss.S";
 
     public static boolean isDateSortedByDesc(List<String> dates) {
         List<Date> datesList = new ArrayList<>();
@@ -14,7 +15,7 @@ public class DateUtils {
         for (String test : dates){
             Date date = null;
             try {
-                date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").parse(test);
+                date = new SimpleDateFormat(dateFormat).parse(test);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
