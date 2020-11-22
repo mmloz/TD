@@ -49,8 +49,7 @@ public class OneProjectPage extends FormWithFactory {
     }
 
     public ITextBox getTest(String name){
-        String path = String.format(testByNamePath, name);
-        By xPath = By.xpath(path);
+        By xPath = By.xpath(String.format(testByNamePath, name));
         return elementFactory.getTextBox(xPath, testByNameTitle);
     }
 

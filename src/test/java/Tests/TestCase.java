@@ -61,12 +61,12 @@ public class TestCase {
         Assert.assertNotNull(token, AssertMessages.nullToken);
         Assert.assertEquals(token.length(), testData.getTokenSize(), AssertMessages.invalidTokenSize);
 
-        // Перейти на сайт. Пройти необходимую авторизацию.
+        // Перейти на сайт. Пройти необходимую авторизацию
         String authUrl = urlBuilder.getAuthUrl(auth.getUnionLogin(), auth.getUnionPassword());
         browser.goTo(authUrl);
         browser.waitForPageToLoad();
 
-        // проверка что открылась страница
+        // Открылась страница проектов
         ProjectsPage projectsPage = new ProjectsPage();
         Assert.assertTrue(projectsPage.home.state().isDisplayed(), AssertMessages.projectsPageError);
 
@@ -78,7 +78,7 @@ public class TestCase {
         browser.refresh();
         browser.waitForPageToLoad();
 
-        // Открылась страница проектов. После обновления страницы, в футере указан верный номер варианта
+        // После обновления страницы, в футере указан верный номер варианта
         Assert.assertTrue(projectsPage.getFooterText()
                 .contains(String.format(testData.getFooterText(), testData.getVariant())),
                 AssertMessages.footerTextError);
@@ -99,7 +99,7 @@ public class TestCase {
         List<String> namesFromUI = nexagePage.getColumnText(testData.getTestNameColumnName());
         Assert.assertTrue(namesFromApi.containsAll(namesFromUI), AssertMessages.uiAndApiComparisonError);
 
-        // Вернуться на предыдущую страницу в браузере(страница проектов)
+        // Вернуться на предыдущую страницу в браузере (страница проектов)
         browser.goBack();
         browser.getDriver().manage().deleteAllCookies();
         browser.refresh();
@@ -132,13 +132,13 @@ public class TestCase {
         // После обновления страницы проект появился в списке
         Assert.assertTrue(projectsPage.isProjectExists(projName), AssertMessages.projectCreationError);
 
-        // Перейти на страницу созданного проекта. Добавить тест через БД(вместе с логом и скриншотом текущей страницы)
+        // Перейти на страницу созданного проекта.
         int projectId = projectsPage.getProjId(projName);
         projectsPage.clickOnProject(projName);
 
         OneProjectPage testProjPage = new OneProjectPage();
 
-        // Добавить тест через БД
+        // Добавить тест через БД (вместе с логом и скриншотом текущей страницы)
         String testName = RandomStringUtils.randomAlphanumeric(testData.getStringLength());
         int statusId = testData.getStatusId();
         String methodName = RandomStringUtils.randomAlphanumeric(testData.getStringLength());
@@ -182,6 +182,7 @@ public class TestCase {
 
     @AfterTest
     public void tearDown(){
+        // Настроить интеграцию проекта с TestRail(выставление результата теста, добавление скриншота)
         String testRailUrl = testData.getTRUrl();
         String testRailLogin = auth.getTrLogin();
         String testRailPassword = auth.getTrPassword();
