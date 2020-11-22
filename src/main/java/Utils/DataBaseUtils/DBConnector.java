@@ -8,7 +8,7 @@ public class DBConnector {
     private static final String PASSWORD = "root";
 
     public void insertTest(String testName, int statusId, String methodName, int projectId, int sessionId, String env, String browser){
-        String insertTestQuery = String.format(DBQueries.INSERT_TEST, testName, statusId, methodName, projectId, null, "CURRENT_TIMESTAMP", sessionId, env, browser, null);
+        String insertTestQuery = String.format(DBQueries.INSERT_TEST, testName, statusId, methodName, projectId, sessionId, "CURRENT_TIMESTAMP", null, env, browser, null);
         executeUpdate(insertTestQuery);
     }
 

@@ -28,7 +28,7 @@ public class DBQueries {
 
     public static final String INSERT_LOG = "INSERT INTO log(content, is_exception, test_id) VALUES ('%s', %s, %s);";
 
-    public static final String INSERT_ATTACHMENT = "INSERT INTO attachment(content, content_type, test_id) VALUES (0x%s, %s, %s);";
+    public static final String INSERT_ATTACHMENT = "INSERT INTO attachment(content, content_type, test_id) VALUES (0x%s, '%s', %s);";
 
     private DBQueries(){}
 }
