@@ -1,0 +1,25 @@
+{
+  "var" : "1",
+  "tokenSize" : "32",
+  "stringLength" : "10",
+  "login" : "login",
+  "password" : "password",
+  "footerText" : "Version: %s",
+  "projectId" : "1",
+  "projectName" : "Nexage",
+  "testNameColumnName" : "Test name",
+  "testDateColumnName" : "Latest test start time",
+  "successMsg" : "Project %s saved",
+  "statusId" : "1",
+  "sessionId" : "1",
+  "attachmentType" : "image/png",
+  "screenFormat" : "png",
+  "screenName" : "screen.png",
+  "imgName" : "testAttachment.png",
+
+  "testRailUrl": "https://tr.a1qa.com/index.php?/api/v2",
+  "testRailProject" : "108",
+  "testRailCaseId" : "11345480",
+  "testRunName" : "TD Lozinskaya",
+  "testCaseStatus" : "1"
+}

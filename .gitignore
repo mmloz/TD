@@ -1,0 +1,6 @@
+/.idea/
+/target/
+*.iml
+*.md
+/test-output/
+/src/test/resources/downloads/
