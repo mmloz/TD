@@ -46,6 +46,10 @@ public class ProjectsPage extends FormWithFactory {
         return projs.size() > 0;
     }
 
+    public ITextBox getProject(String name){
+        return elementFactory.getTextBox(getProjectPath(name), projectName);
+    }
+
     private String getProjUrl(String name){
         List<ITextBox> projs = elementFactory.findElements(getProjectPath(name), projectName, ITextBox.class);
         return projs.get(0).getAttribute("href");

@@ -10,7 +10,6 @@ import Forms.OneProjectPage;
 import Forms.ProjectsPage;
 import Forms.TestPage;
 import TestData.AuthKeeper;
-import TestData.SettingsKeeper;
 import TestData.TestDataKeeper;
 import Utils.DataBaseUtils.DBConnector;
 import Utils.DateUtils;
@@ -19,6 +18,7 @@ import Utils.ImageUtils;
 import Utils.JsonUtils;
 import aquality.selenium.browser.AqualityServices;
 import aquality.selenium.browser.Browser;
+import aquality.selenium.browser.BrowserName;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.openqa.selenium.Cookie;
 import org.testng.Assert;
@@ -33,7 +33,6 @@ import java.util.List;
 public class TestCase {
     private Browser browser;
     private TestDataKeeper testData;
-    private SettingsKeeper settings;
     private UnionApiRequests unionApi;
     private UrlBuilder urlBuilder;
     private AuthKeeper auth;
@@ -43,7 +42,6 @@ public class TestCase {
         browser = AqualityServices.getBrowser();
 
         testData = new TestDataKeeper();
-        settings = new SettingsKeeper();
 
         unionApi = new UnionApiRequests();
         urlBuilder = new UrlBuilder();
@@ -127,6 +125,10 @@ public class TestCase {
 
         // Обновить страницу
         browser.refresh();
+        if (browser.getBrowserName().equals(BrowserName.FIREFOX) && projectsPage.modalForm.state().isDisplayed()) {
+            projectsPage.modalForm.close();
+            projectsPage.getProject(projName).state().waitForNotDisplayed();
+        }
         browser.waitForPageToLoad();
 
         // После обновления страницы проект появился в списке
@@ -209,5 +211,10 @@ public class TestCase {
 
         // добавляем скрин
         testRailRequests.addScreenToResult(resultId, FileUtils.getPath(browser.getDownloadDirectory(), testData.getScreenName()));
+
+        if (AqualityServices.isBrowserStarted()) {
+            AqualityServices.getBrowser().quit();
+            browser = null;
+        }
     }
 }
